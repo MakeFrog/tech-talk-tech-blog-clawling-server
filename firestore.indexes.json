@@ -1,0 +1,661 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "channel_ref",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "upload_at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "id",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "created_at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random.`1`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random.`2`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random.`3`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random.`4`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random.`5`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "random.`1`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "random.`2`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "random.`3`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "random.`4`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "random",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "random.`5`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "contents_title",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`1`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`1`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`2`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`2`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`3`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`3`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`4`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`4`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`5`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`5`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "upload_at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_job_group_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "upload_at",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "contents_title",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`1`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`1`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`2`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`2`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`3`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`3`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`4`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`4`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`5`",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "random.`5`",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "upload_at",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "related_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "upload_at",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "releated_skill_ids",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "upload_at",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Youtube",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "upload_at",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "random",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Blogs",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "company",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "publishDate",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
