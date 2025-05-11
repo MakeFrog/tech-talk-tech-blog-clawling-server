@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio';
 import { CheerioAPI } from 'cheerio';
 import { axiosInstance } from '../../utils/http';
-import { BlogConfig, RSSItem, ContentResult } from '../types';
+import { BlogConfig, RSSItem, ContentResult } from '../../types';
 
 const naverD2Config: BlogConfig = {
     id: 'naver_d2',

@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio';
 import { CheerioAPI } from 'cheerio';
-import { RSSItem, ContentResult } from '../types';
+import { axiosInstance } from '../../utils/http';
+import { RSSItem, ContentResult } from '../../types';
 
 interface MediumPlatform {
     extractContent: ($: CheerioAPI, url: string, item: RSSItem) => Promise<ContentResult>;
@@ -8,36 +9,60 @@ interface MediumPlatform {
 }
 
 export const mediumPlatform: MediumPlatform = {
-    extractContent: async ($: CheerioAPI, url: string, item: RSSItem): Promise<ContentResult> => {
-        // Medium RSS는 content:encoded 또는 content 필드에 전체 본문이 포함됨
-        const content = item.contentEncoded || item.content || '';
+    async extractContent($: CheerioAPI, url: string, item: RSSItem): Promise<ContentResult> {
+        try {
+            let content = '';
+            let description = '';
 
-        // description은 RSS의 description 또는 subtitle 필드에서 직접 추출
-        let description = item.description || item.subtitle || '';
+            if (item.content) {
+                content = item.content;
+                description = item.contentEncoded || item.contentSnippet || '';
+            } else {
+                const response = await axiosInstance.get(url);
+                const $page = cheerio.load(response.data);
+                content = $page('article').html() || '';
+                description = $page('meta[name="description"]').attr('content') || '';
+            }
 
-        // description이 없거나 HTML 태그가 포함된 경우 첫 번째 문단에서 추출
-        if (!description || description.includes('<')) {
-            const $content = cheerio.load(content);
-            description = $content('p').first().text() || '';
+            return {
+                content,
+                description: description.slice(0, 200) // 설명은 200자로 제한
+            };
+        } catch (error) {
+            console.error(`Medium content extraction failed for ${url}:`, error);
+            return {
+                content: '',
+                description: ''
+            };
         }
-
-        // description 길이 제한
-        if (description.length > 200) {
-            description = description.substring(0, 197) + '...';
-        }
-
-        return {
-            content,
-            description: description || '내용 없음'
-        };
     },
 
-    extractThumbnail: async ($: CheerioAPI, url: string, item: RSSItem): Promise<string> => {
+    async extractThumbnail($: CheerioAPI, url: string, item: RSSItem): Promise<string> {
         try {
-            // Medium의 첫 번째 이미지를 썸네일로 사용
-            const $content = cheerio.load(item.content || '');
-            const firstImage = $content('img').first();
-            return firstImage.attr('src') || '';
+            // 1. RSS 피드의 content에서 이미지 찾기
+            if (item.content) {
+                const $content = cheerio.load(item.content);
+
+                // figure 태그 내의 이미지 찾기
+                const figureImg = $content('figure img').first().attr('src');
+                if (figureImg) return figureImg;
+
+                // 일반 이미지 태그 찾기
+                const regularImg = $content('img').first().attr('src');
+                if (regularImg) return regularImg;
+            }
+
+            // 2. 실제 페이지에서 이미지 찾기
+            const response = await axiosInstance.get(url);
+            const $page = cheerio.load(response.data);
+
+            // Medium의 메인 이미지 찾기
+            const mainImage = $page('figure img').first().attr('src') ||
+                $page('img[data-testid="og"]').attr('src') ||
+                $page('meta[property="og:image"]').attr('content') ||
+                $page('meta[name="twitter:image:src"]').attr('content');
+
+            return mainImage || '';
         } catch (error) {
             console.error(`Medium thumbnail extraction failed for ${url}:`, error);
             return '';

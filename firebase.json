@@ -2,5 +2,12 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": ".",
+    "runtime": "nodejs22",
+    "predeploy": [
+      "npm run build"
+    ]
   }
 }

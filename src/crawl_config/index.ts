@@ -1,4 +1,4 @@
-import { BlogConfig } from './types';
+import { BlogConfig } from '../types';
 import jobkorea from './blogs/jobkorea';
 import coupang from './blogs/coupang';
 import naverD2 from './blogs/naver_d2';

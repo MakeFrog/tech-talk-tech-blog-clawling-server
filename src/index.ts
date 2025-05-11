@@ -4,7 +4,10 @@ import { writeLog } from './utils/logger';
 import { blogConfigs } from './crawl_config';
 import * as admin from 'firebase-admin';
 import { Firestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
-import { BlogConfig } from './crawl_config/types';
+import { BlogConfig } from './types';
+import { onSchedule } from 'firebase-functions/v2/scheduler';
+import { onRequest } from 'firebase-functions/v2/https';
+
 
 // Firebase 관련 변수
 let db: Firestore;
@@ -54,7 +57,7 @@ function stripHtml(html: string | undefined): string {
 }
 
 // 크롤링 함수
-async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Promise<void> {
+export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Promise<void> {
     try {
         writeLog(`[${blogConfig.name}] 크롤링 시작`);
 
@@ -170,6 +173,47 @@ async function main(): Promise<void> {
         await crawlBlog(config, isTestMode);
     }
 }
+
+// Firebase Functions - 매일 오후 9시 크롤링
+export const scheduledCrawling = onSchedule(
+    {
+        schedule: '0 21 * * *',
+        timeZone: 'Asia/Seoul',
+        region: 'asia-northeast3',
+        minInstances: 0,
+        timeoutSeconds: 540
+    },
+    async (_context) => {
+        try {
+            writeLog('스케줄링된 크롤링 작업 시작');
+            await main();
+            writeLog('스케줄링된 크롤링 작업 완료');
+        } catch (error) {
+            writeLog(`스케줄링된 크롤링 작업 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+        }
+    }
+);
+
+// HTTP 엔드포인트 - 크롤링 테스트용
+export const testCrawling = onRequest(
+    {
+        region: 'asia-northeast3',
+        minInstances: 0,
+        timeoutSeconds: 540
+    },
+    async (req, res) => {
+        try {
+            writeLog('테스트 크롤링 시작');
+            await main();
+            writeLog('테스트 크롤링 완료');
+            res.status(200).send('크롤링이 완료되었습니다.');
+        } catch (error) {
+            writeLog(`테스트 크롤링 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+            res.status(500).send('크롤링 중 오류가 발생했습니다.');
+        }
+    }
+);
 
 // 명령어 처리
 const command = process.argv[2];

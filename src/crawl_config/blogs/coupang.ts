@@ -1,4 +1,4 @@
-import { BlogConfig } from '../types';
+import { BlogConfig } from '../../types';
 import { mediumPlatform } from '../platforms/medium';
 
 const coupangConfig: BlogConfig = {
