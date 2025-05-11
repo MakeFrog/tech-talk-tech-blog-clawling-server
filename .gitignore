@@ -1,11 +1,41 @@
+# Dependencies
+node_modules/
+yarn.lock
+package-lock.json
+
+# Build output
+dist/
+build/
+*.js.map
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+serviceAccountKey.json
+firebase-adminsdk.json
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-firebase-debug.log*
-firebase-debug.*.log*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
 # Firebase cache
 .firebase/
@@ -44,9 +74,6 @@ bower_components
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 
-# Dependency directories
-node_modules/
-
 # Optional npm cache directory
 .npm
 
@@ -62,11 +89,5 @@ node_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
-.env
-
 # dataconnect generated files
 .dataconnect
-
-# Service account key file
-serviceAccountKey.json

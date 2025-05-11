@@ -2,14 +2,21 @@
     "name": "tech-blog-crawl",
     "version": "1.0.0",
     "description": "Tech blog crawler with RSS feed",
-    "main": "index.js",
+    "main": "dist/index.js",
     "scripts": {
-        "start": "node index.js"
+        "build": "tsc",
+        "start": "npm run build && node dist/index.js",
+        "test": "npm run build && node dist/index.js --test",
+        "crawl": "npm run build && node dist/index.js --crawl"
     },
     "dependencies": {
         "axios": "^1.9.0",
         "cheerio": "^1.0.0",
         "firebase-admin": "^12.7.0",
         "rss-parser": "^3.13.0"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0"
     }
 }

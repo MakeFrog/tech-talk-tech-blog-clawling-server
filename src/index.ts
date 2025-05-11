@@ -1,18 +1,19 @@
-const Parser = require('rss-parser');
-const cheerio = require('cheerio');
-const { writeLog } = require('./src/utils/logger');
-const { blogConfigs } = require('./src/crawl_config');
+import Parser from 'rss-parser';
+import * as cheerio from 'cheerio';
+import { writeLog } from './utils/logger';
+import { blogConfigs } from './crawl_config';
+import * as admin from 'firebase-admin';
+import { Firestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
+import { BlogConfig } from './crawl_config/types';
 
 // Firebase 관련 변수
-let admin;
-let db;
+let db: Firestore;
 
 // Firebase 초기화 함수
-function initializeFirebase() {
+function initializeFirebase(): boolean {
     try {
-        if (!admin) {
-            admin = require('firebase-admin');
-            const serviceAccount = require('./serviceAccountKey.json');
+        if (!admin.apps.length) {
+            const serviceAccount = require('../serviceAccountKey.json');
             admin.initializeApp({
                 credential: admin.credential.cert(serviceAccount)
             });
@@ -21,13 +22,13 @@ function initializeFirebase() {
         }
         return true;
     } catch (error) {
-        writeLog(`Firebase 초기화 실패: ${error.message}`);
+        writeLog(`Firebase 초기화 실패: ${error instanceof Error ? error.message : String(error)}`);
         return false;
     }
 }
 
 // RSS 파서 설정
-const parser = new Parser({
+const parser: Parser = new Parser({
     headers: {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Accept': 'application/atom+xml,application/xml,text/xml,application/rss+xml'
@@ -44,7 +45,7 @@ const parser = new Parser({
 });
 
 // HTML 태그 제거 함수
-function stripHtml(html) {
+function stripHtml(html: string | undefined): string {
     if (!html) return '';
     const $ = cheerio.load(html);
     $('script').remove();
@@ -53,7 +54,7 @@ function stripHtml(html) {
 }
 
 // 크롤링 함수
-async function crawlBlog(blogConfig, isTestMode = false) {
+async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Promise<void> {
     try {
         writeLog(`[${blogConfig.name}] 크롤링 시작`);
 
@@ -61,7 +62,7 @@ async function crawlBlog(blogConfig, isTestMode = false) {
         const feed = await parser.parseURL(blogConfig.feedUrl);
         writeLog(`[${blogConfig.name}] ${feed.items.length}개의 글 발견`);
 
-        let batch;
+        let batch = isTestMode ? null : db.batch();
         let batchCount = 0;
         let totalProcessed = 0;
 
@@ -72,7 +73,6 @@ async function crawlBlog(blogConfig, isTestMode = false) {
                 writeLog(`[${blogConfig.name}] Firebase 초기화 실패로 크롤링 중단`);
                 return;
             }
-            batch = db.batch();
         }
 
         // 각 글 처리
@@ -80,6 +80,11 @@ async function crawlBlog(blogConfig, isTestMode = false) {
             try {
                 // 기본 데이터 준비
                 const $ = cheerio.load(item.content || '');
+
+                if (!item.link) {
+                    writeLog(`[${blogConfig.name}] 링크가 없는 글 발견: ${item.title}`);
+                    continue;
+                }
 
                 // 컨텐츠 추출
                 const contentResult = await blogConfig.extractContent($, item.link, item);
@@ -103,14 +108,14 @@ async function crawlBlog(blogConfig, isTestMode = false) {
                         id: docRef.id,
                         title: item.title,
                         linkUrl: item.link,
-                        publishDate: admin.firestore.Timestamp.fromDate(new Date(item.pubDate || item.isoDate)),
+                        publishDate: Timestamp.fromDate(new Date(item.pubDate || item.isoDate || new Date())),
                         author: blogConfig.authorSelector ? $(blogConfig.authorSelector).text().trim() : blogConfig.name,
                         blogId: blogConfig.id,
                         blogName: blogConfig.name,
                         description: contentResult.description || '내용 없음',
                         thumbnailUrl: thumbnailUrl,
-                        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-                        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+                        createdAt: FieldValue.serverTimestamp(),
+                        updatedAt: FieldValue.serverTimestamp()
                     });
 
                     // 컨텐츠 서브컬렉션 데이터
@@ -131,7 +136,7 @@ async function crawlBlog(blogConfig, isTestMode = false) {
 
                 totalProcessed++;
             } catch (error) {
-                writeLog(`[${blogConfig.name}] 글 처리 중 오류 발생: ${error.message}`);
+                writeLog(`[${blogConfig.name}] 글 처리 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
                 continue;
             }
         }
@@ -144,12 +149,12 @@ async function crawlBlog(blogConfig, isTestMode = false) {
 
         writeLog(`[${blogConfig.name}] 크롤링 완료. 총 ${totalProcessed}개의 글 처리됨`);
     } catch (error) {
-        writeLog(`[${blogConfig.name}] 크롤링 중 오류 발생: ${error.message}`);
+        writeLog(`[${blogConfig.name}] 크롤링 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
     }
 }
 
 // 메인 함수
-async function main() {
+async function main(): Promise<void> {
     const isTestMode = process.argv.includes('--test');
     if (isTestMode) {
         writeLog('테스트 모드로 실행 중 (Firebase 저장 건너뜀)');
@@ -166,28 +171,29 @@ async function main() {
     }
 }
 
-// 스크립트 실행
-main().catch(error => {
-    writeLog(`프로그램 실행 중 오류 발생: ${error.message}`);
-    process.exit(1);
-});
-
 // 명령어 처리
 const command = process.argv[2];
 switch (command) {
     case '--delete':
         if (initializeFirebase()) {
-            deleteAllDocuments();
+            // TODO: Implement deleteAllDocuments function
+            writeLog('삭제 기능은 아직 구현되지 않았습니다.');
         } else {
             writeLog('Firebase 초기화 실패로 삭제를 진행할 수 없습니다.');
         }
         break;
     case '--test':
         writeLog('테스트 모드로 실행됨');
-        main();
+        main().catch(error => {
+            writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+            process.exit(1);
+        });
         break;
     case '--crawl':
-        main();
+        main().catch(error => {
+            writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+            process.exit(1);
+        });
         break;
     default:
         console.log(`
@@ -196,4 +202,4 @@ switch (command) {
 --test   : 테스트 모드로 실행 (Firebase 저장 건너뜀)
 --crawl  : 전체 블로그 크롤링
         `);
-}
+} 
