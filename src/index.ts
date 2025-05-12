@@ -9,6 +9,9 @@ import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onRequest } from 'firebase-functions/v2/https';
 import { formatCrawlingResult, sendSlackMessage } from './webHook/slack';
 
+// 로그 설정
+process.env.DEBUG = '*';
+process.env.NODE_ENV = process.argv.includes('--dev') ? 'development' : 'production';
 
 // Firebase 관련 변수
 let db: Firestore;
@@ -256,48 +259,43 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
 // 메인 함수
 async function main(): Promise<void> {
     const isTestMode = process.argv.includes('--test');
-    const targetBlog = process.argv.find(arg => arg.startsWith('--blog='))?.split('=')[1];
-    const shouldDelete = process.argv.includes('--delete');
+    const targetBlogId = process.argv.find((arg) => arg.startsWith('--blog='))?.split('=')[1];
 
-    console.log(isTestMode ? '테스트 모드로 실행됨' : '프로덕션 모드로 실행됨');
+    writeLog('크롤링 시작');
+    writeLog(`실행 모드: ${isTestMode ? '테스트' : '프로덕션'}`);
+    writeLog(`대상 블로그: ${targetBlogId || '전체'}`);
 
     if (isTestMode) {
-        console.log('테스트 모드로 실행 중 (Firebase 저장 및 슬랙 알림 건너뜀)');
-    }
-
-    // 특정 블로그 삭제 로직
-    if (targetBlog && shouldDelete) {
-        console.log(`${targetBlog} 블로그의 데이터를 삭제합니다.`);
-        await deleteCollection(`blogs/${targetBlog}/posts`);
-        console.log(`${targetBlog} 블로그의 데이터가 삭제되었습니다.`);
-        return;
-    }
-
-    // 블로그 설정 필터링
-    const blogsToProcess: BlogConfig[] = targetBlog
-        ? Object.values(blogConfigs).filter((config: BlogConfig) => config.name === targetBlog)
-        : Object.values(blogConfigs);
-
-    if (targetBlog && blogsToProcess.length === 0) {
-        console.error(`지정된 블로그 "${targetBlog}"를 찾을 수 없습니다.`);
-        return;
+        writeLog('테스트 모드로 실행 중 (Firebase 저장 및 슬랙 알림 건너뜀)');
     }
 
     const results = [];
-    for (const config of blogsToProcess) {
-        const result = await crawlBlog(config, isTestMode);
-        results.push(result);
-    }
 
-    // Slack 메시지 전송
-    if (!isTestMode) {
-        try {
-            const message = formatCrawlingResult(results);
-            await sendSlackMessage(message);
-        } catch (error) {
-            console.error('Slack 메시지 전송 중 오류 발생:', error);
+    if (targetBlogId) {
+        // 특정 블로그만 크롤링
+        const blogConfig = blogConfigs[targetBlogId];
+        if (!blogConfig) {
+            writeLog(`Error: 블로그 ID "${targetBlogId}"를 찾을 수 없습니다.`);
+            writeLog('사용 가능한 블로그 ID: ' + Object.keys(blogConfigs).join(', '));
+            return;
+        }
+        const result = await crawlBlog(blogConfig, isTestMode);
+        results.push(result);
+    } else {
+        // 모든 블로그 크롤링
+        for (const blogConfig of Object.values(blogConfigs)) {
+            const result = await crawlBlog(blogConfig, isTestMode);
+            results.push(result);
         }
     }
+
+    // 결과 처리
+    if (!isTestMode) {
+        const message = formatCrawlingResult(results);
+        await sendSlackMessage(message);
+    }
+
+    writeLog('크롤링 완료');
 }
 
 // 오전 9시 크롤링 (프로덕션)
@@ -419,46 +417,126 @@ export const testCrawling = onRequest(
 );
 
 // 명령어 처리
-const command = process.argv[2];
-switch (command) {
-    case '--delete':
-        if (initializeFirebase()) {
-            // TODO: Implement deleteAllDocuments function
-            writeLog('삭제 기능은 아직 구현되지 않았습니다.');
+const targetBlogId = process.argv.find((arg) => arg.startsWith('--blog='))?.split('=')[1];
+
+if (process.argv.includes('--test')) {
+    writeLog('테스트 모드로 실행됨');
+    main().catch(error => {
+        writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+    });
+} else if (process.argv.includes('--crawl')) {
+    main().catch(error => {
+        writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+    });
+} else if (process.argv.includes('--delete')) {
+    if (initializeFirebase()) {
+        if (targetBlogId) {
+            deleteBlogData(targetBlogId)
+                .then(() => writeLog('삭제가 완료되었습니다.'))
+                .catch(error => {
+                    writeLog(`삭제 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+                    process.exit(1);
+                });
         } else {
-            writeLog('Firebase 초기화 실패로 삭제를 진행할 수 없습니다.');
+            writeLog('삭제할 블로그 ID를 지정해주세요. (--blog=블로그ID)');
+            process.exit(1);
         }
-        break;
-    case '--test':
-        writeLog('테스트 모드로 실행됨');
-        main().catch(error => {
-            writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
-            process.exit(1);
-        });
-        break;
-    case '--crawl':
-        main().catch(error => {
-            writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
-            process.exit(1);
-        });
-        break;
-    default:
-        console.log(`
+    } else {
+        writeLog('Firebase 초기화 실패로 삭제를 진행할 수 없습니다.');
+        process.exit(1);
+    }
+} else {
+    writeLog('명령어를 지정해주세요.');
+    writeLog(`
 사용 가능한 명령어:
 --delete : Blogs 컬렉션의 모든 데이터 삭제
 --test   : 테스트 모드로 실행 (Firebase 저장 건너뜀)
 --crawl  : 전체 블로그 크롤링
-        `);
+    `);
+    process.exit(1);
 }
 
-// Firebase 컬렉션 삭제 함수 추가
-async function deleteCollection(collectionPath: string) {
-    const snapshot = await admin.firestore().collection(collectionPath).get();
-    const batch = admin.firestore().batch();
+// Firebase 컬렉션 삭제 함수
+async function deleteCollection(collectionPath: string, batchSize: number = 100) {
+    const collectionRef = admin.firestore().collection(collectionPath);
+    const query = collectionRef.orderBy('__name__').limit(batchSize);
 
-    snapshot.docs.forEach((doc) => {
-        batch.delete(doc.ref);
+    return new Promise((resolve, reject) => {
+        deleteQueryBatch(query, batchSize, resolve, reject);
     });
+}
 
-    await batch.commit();
+async function deleteQueryBatch(query: FirebaseFirestore.Query, batchSize: number, resolve: Function, reject: Function) {
+    try {
+        const snapshot = await query.get();
+
+        // 삭제할 문서가 없으면 완료
+        if (snapshot.size === 0) {
+            resolve();
+            return;
+        }
+
+        // 배치 삭제 수행
+        const batch = admin.firestore().batch();
+        snapshot.docs.forEach((doc) => {
+            // Content 서브컬렉션도 삭제
+            const contentRef = doc.ref.collection('Content').doc('content');
+            batch.delete(contentRef);
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+
+        // 다음 배치 처리
+        process.nextTick(() => {
+            deleteQueryBatch(query, batchSize, resolve, reject);
+        });
+    } catch (error) {
+        reject(error);
+    }
+}
+
+// 특정 블로그의 데이터 삭제
+async function deleteBlogData(blogId: string): Promise<void> {
+    try {
+        const blogsRef = admin.firestore().collection('Blogs');
+        const query = blogsRef.where('blogId', '==', blogId);
+        const snapshot = await query.get();
+
+        if (snapshot.empty) {
+            writeLog(`블로그 ID "${blogId}"에 해당하는 데이터가 없습니다.`);
+            return;
+        }
+
+        let batch = admin.firestore().batch();
+        let count = 0;
+
+        for (const doc of snapshot.docs) {
+            // Content 서브컬렉션 삭제
+            const contentRef = doc.ref.collection('Content').doc('content');
+            batch.delete(contentRef);
+            // 메인 문서 삭제
+            batch.delete(doc.ref);
+            count += 2;
+
+            // Firestore 배치 제한(500)에 도달하면 커밋
+            if (count >= 498) {
+                await batch.commit();
+                batch = admin.firestore().batch();
+                count = 0;
+            }
+        }
+
+        // 남은 배치 처리
+        if (count > 0) {
+            await batch.commit();
+        }
+
+        writeLog(`블로그 ID "${blogId}"의 ${snapshot.size}개 문서가 삭제되었습니다.`);
+    } catch (error) {
+        writeLog(`데이터 삭제 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+        throw error;
+    }
 } 

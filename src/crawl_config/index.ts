@@ -2,6 +2,7 @@ import { BlogConfig } from '../types';
 import jobkorea from './blogs/jobkorea';
 import coupang from './blogs/coupang';
 import naverD2 from './blogs/naver_d2';
+import woowahan from './blogs/woowahan';
 
 interface BlogConfigs {
     [key: string]: BlogConfig;
@@ -10,5 +11,6 @@ interface BlogConfigs {
 export const blogConfigs: BlogConfigs = {
     jobkorea,
     coupang,
-    naverD2
+    naverD2,
+    woowahan
 }; 
