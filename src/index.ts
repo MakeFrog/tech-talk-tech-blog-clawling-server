@@ -17,12 +17,22 @@ let db: Firestore;
 function initializeFirebase(): boolean {
     try {
         if (!admin.apps.length) {
-            const serviceAccount = require('../serviceAccountKey.json');
-            admin.initializeApp({
-                credential: admin.credential.cert(serviceAccount)
-            });
-            db = admin.firestore();
-            writeLog('Firebase 초기화 성공');
+            // 환경에 따른 서비스 계정 키 파일 선택
+            const isDevMode = process.argv.includes('--dev');
+            const serviceAccountPath = isDevMode ? '../serviceAccountKey.dev.json' : '../serviceAccountKey.prod.json';
+
+            try {
+                const serviceAccount = require(serviceAccountPath);
+                admin.initializeApp({
+                    credential: admin.credential.cert(serviceAccount)
+                });
+                db = admin.firestore();
+                writeLog(`Firebase 초기화 성공 (${isDevMode ? 'Development' : 'Production'} 환경)`);
+                return true;
+            } catch (error) {
+                writeLog(`서비스 계정 키 파일 로드 실패 (${serviceAccountPath}): ${error instanceof Error ? error.message : String(error)}`);
+                return false;
+            }
         }
         return true;
     } catch (error) {
@@ -290,10 +300,10 @@ async function main(): Promise<void> {
     }
 }
 
-// Firebase Functions - 매일 오후 9시 5분 크롤링
-export const scheduledCrawling = onSchedule(
+// 오전 9시 크롤링
+export const morningCrawling = onSchedule(
     {
-        schedule: '5 21 * * *',  // 매일 21시 5분
+        schedule: '0 9 * * *',  // 매일 오전 9시
         timeZone: 'Asia/Seoul',
         region: 'asia-northeast3',
         minInstances: 0,
@@ -301,11 +311,32 @@ export const scheduledCrawling = onSchedule(
     },
     async (_context) => {
         try {
-            writeLog('스케줄링된 크롤링 작업 시작');
+            writeLog('오전 크롤링 작업 시작');
             await main();
-            writeLog('스케줄링된 크롤링 작업 완료');
+            writeLog('오전 크롤링 작업 완료');
         } catch (error) {
-            writeLog(`스케줄링된 크롤링 작업 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+            writeLog(`오전 크롤링 작업 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+        }
+    }
+);
+
+// 오후 10시 30분 크롤링
+export const eveningCrawling = onSchedule(
+    {
+        schedule: '30 22 * * *',  // 매일 오후 10시 30분
+        timeZone: 'Asia/Seoul',
+        region: 'asia-northeast3',
+        minInstances: 0,
+        timeoutSeconds: 540
+    },
+    async (_context) => {
+        try {
+            writeLog('오후 크롤링 작업 시작');
+            await main();
+            writeLog('오후 크롤링 작업 완료');
+        } catch (error) {
+            writeLog(`오후 크롤링 작업 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         }
     }

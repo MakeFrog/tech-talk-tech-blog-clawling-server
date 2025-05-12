@@ -13,6 +13,9 @@ build/
 .env.local
 .env.*.local
 serviceAccountKey.json
+serviceAccountKey.*.json
+serviceAccountKey.dev.json
+serviceAccountKey.prod.json
 firebase-adminsdk.json
 
 # IDE and editor files

@@ -9,8 +9,11 @@
     "scripts": {
         "build": "tsc",
         "start": "npm run build && node dist/index.js",
+        "start:dev": "npm run build && node dist/index.js --dev",
         "test": "npm run build && node dist/index.js --test",
-        "crawl": "npm run build && node dist/index.js --crawl"
+        "test:dev": "npm run build && node dist/index.js --test --dev",
+        "crawl": "npm run build && node dist/index.js --crawl",
+        "crawl:dev": "npm run build && node dist/index.js --crawl --dev"
     },
     "dependencies": {
         "axios": "^1.9.0",
