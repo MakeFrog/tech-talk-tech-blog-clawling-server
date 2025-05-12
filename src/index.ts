@@ -18,7 +18,7 @@ function initializeFirebase(): boolean {
     try {
         if (!admin.apps.length) {
             // 환경에 따른 서비스 계정 키 파일 선택
-            const isDevMode = process.argv.includes('--dev');
+            const isDevMode = process.argv.includes('--dev') || process.env.FIREBASE_ENV === 'dev';
             const serviceAccountPath = isDevMode ? '../serviceAccountKey.dev.json' : '../serviceAccountKey.prod.json';
 
             try {
@@ -300,8 +300,8 @@ async function main(): Promise<void> {
     }
 }
 
-// 오전 9시 크롤링
-export const morningCrawling = onSchedule(
+// 오전 9시 크롤링 (프로덕션)
+export const morningCrawlingProd = onSchedule(
     {
         schedule: '0 9 * * *',  // 매일 오전 9시
         timeZone: 'Asia/Seoul',
@@ -311,18 +311,19 @@ export const morningCrawling = onSchedule(
     },
     async (_context) => {
         try {
-            writeLog('오전 크롤링 작업 시작');
+            process.env.FIREBASE_ENV = 'prod';
+            writeLog('오전 크롤링 작업 시작 (Production)');
             await main();
-            writeLog('오전 크롤링 작업 완료');
+            writeLog('오전 크롤링 작업 완료 (Production)');
         } catch (error) {
-            writeLog(`오전 크롤링 작업 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+            writeLog(`오전 크롤링 작업 중 오류 발생 (Production): ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         }
     }
 );
 
-// 오후 10시 30분 크롤링
-export const eveningCrawling = onSchedule(
+// 오후 10시 30분 크롤링 (프로덕션)
+export const eveningCrawlingProd = onSchedule(
     {
         schedule: '30 22 * * *',  // 매일 오후 10시 30분
         timeZone: 'Asia/Seoul',
@@ -332,11 +333,56 @@ export const eveningCrawling = onSchedule(
     },
     async (_context) => {
         try {
-            writeLog('오후 크롤링 작업 시작');
+            process.env.FIREBASE_ENV = 'prod';
+            writeLog('오후 크롤링 작업 시작 (Production)');
             await main();
-            writeLog('오후 크롤링 작업 완료');
+            writeLog('오후 크롤링 작업 완료 (Production)');
         } catch (error) {
-            writeLog(`오후 크롤링 작업 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+            writeLog(`오후 크롤링 작업 중 오류 발생 (Production): ${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+        }
+    }
+);
+
+// 오전 9시 크롤링 (개발)
+export const morningCrawlingDev = onSchedule(
+    {
+        schedule: '0 9 * * *',  // 매일 오전 9시
+        timeZone: 'Asia/Seoul',
+        region: 'asia-northeast3',
+        minInstances: 0,
+        timeoutSeconds: 540
+    },
+    async (_context) => {
+        try {
+            process.env.FIREBASE_ENV = 'dev';
+            writeLog('오전 크롤링 작업 시작 (Development)');
+            await main();
+            writeLog('오전 크롤링 작업 완료 (Development)');
+        } catch (error) {
+            writeLog(`오전 크롤링 작업 중 오류 발생 (Development): ${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+        }
+    }
+);
+
+// 오후 10시 30분 크롤링 (개발)
+export const eveningCrawlingDev = onSchedule(
+    {
+        schedule: '30 22 * * *',  // 매일 오후 10시 30분
+        timeZone: 'Asia/Seoul',
+        region: 'asia-northeast3',
+        minInstances: 0,
+        timeoutSeconds: 540
+    },
+    async (_context) => {
+        try {
+            process.env.FIREBASE_ENV = 'dev';
+            writeLog('오후 크롤링 작업 시작 (Development)');
+            await main();
+            writeLog('오후 크롤링 작업 완료 (Development)');
+        } catch (error) {
+            writeLog(`오후 크롤링 작업 중 오류 발생 (Development): ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         }
     }
@@ -351,9 +397,17 @@ export const testCrawling = onRequest(
     },
     async (req, res) => {
         try {
-            writeLog('테스트 크롤링 시작');
+            // 쿼리 파라미터로 환경 설정
+            const env = req.query.env as string;
+            if (env === 'dev') {
+                process.env.FIREBASE_ENV = 'dev';
+            } else {
+                process.env.FIREBASE_ENV = 'prod';
+            }
+
+            writeLog(`테스트 크롤링 시작 (${env === 'dev' ? 'Development' : 'Production'})`);
             await main();
-            writeLog('테스트 크롤링 완료');
+            writeLog(`테스트 크롤링 완료 (${env === 'dev' ? 'Development' : 'Production'})`);
             res.status(200).send('크롤링이 완료되었습니다.');
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
