@@ -1,4 +1,4 @@
-import { crawlBlog } from '../index';
+import { crawlBlog } from '../main';
 import { blogConfigs } from '../crawl_config';
 import { formatCrawlingResult, sendSlackMessage } from '../webHook/slack';
 

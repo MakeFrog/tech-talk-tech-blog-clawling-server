@@ -1,5 +1,5 @@
 import { onSchedule } from 'firebase-functions/v2/scheduler';
-import { crawlBlog } from '../index';
+import { crawlBlog } from '../main';
 import { blogConfigs } from '../crawl_config';
 import { writeLog } from '../utils/logger';
 

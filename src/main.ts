@@ -257,7 +257,7 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
 }
 
 // 메인 함수
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
     const isTestMode = process.argv.includes('--test');
     const targetBlogId = process.argv.find((arg) => arg.startsWith('--blog='))?.split('=')[1];
 

@@ -2,18 +2,18 @@
     "name": "tech-blog-crawl",
     "version": "1.0.0",
     "description": "Tech blog crawler with RSS feed",
-    "main": "dist/index.js",
+    "main": "dist/main.js",
     "engines": {
         "node": "22"
     },
     "scripts": {
         "build": "tsc",
-        "start": "npm run build && node dist/index.js",
-        "start:dev": "npm run build && node dist/index.js --dev",
-        "test": "npm run build && node dist/index.js --test",
-        "test:dev": "npm run build && node dist/index.js --test --dev",
-        "crawl": "npm run build && node dist/index.js --crawl",
-        "crawl:dev": "npm run build && node dist/index.js --crawl --dev"
+        "start": "npm run build && node dist/main.js",
+        "start:dev": "npm run build && node dist/main.js --dev",
+        "test": "npm run build && node dist/main.js --test",
+        "test:dev": "npm run build && node dist/main.js --test --dev",
+        "crawl": "npm run build && node dist/main.js --crawl",
+        "crawl:dev": "npm run build && node dist/main.js --crawl --dev"
     },
     "dependencies": {
         "@types/probe-image-size": "^7.2.5",
