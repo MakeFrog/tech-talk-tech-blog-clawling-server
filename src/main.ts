@@ -8,6 +8,7 @@ import { BlogConfig } from './types';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import { onRequest } from 'firebase-functions/v2/https';
 import { formatCrawlingResult, sendSlackMessage } from './webHook/slack';
+import { analyzeContent, ContentAnalysisResult } from './utils/gemini';
 
 // 로그 설정
 process.env.DEBUG = '*';
@@ -156,6 +157,13 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
                 const contentResult = await blogConfig.extractContent($, item.link, item);
                 const textContent = stripHtml(contentResult.content);
 
+                // 기본 AI 분석 결과 (유효하지 않은 경우)
+                let analysisResult: ContentAnalysisResult = {
+                    isValid: false,
+                    skillIds: [],
+                    jobGroupIds: []
+                };
+
                 // 컨텐츠 유효성 검사
                 if (!textContent.trim()) {
                     failedPosts.push({
@@ -164,7 +172,29 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
                         reason: '본문이 비어있음'
                     });
                     writeLog(`[${blogConfig.name}] 본문이 비어있는 글 발견: ${item.title}`);
-                    continue;
+                } else if (!item.title) {
+                    failedPosts.push({
+                        url: item.link,
+                        reason: '제목이 비어있음'
+                    });
+                    writeLog(`[${blogConfig.name}] 제목이 비어있는 글 발견: ${item.link}`);
+                } else {
+                    // title과 content가 모두 있는 경우에만 Gemini AI 분석 실행
+                    analysisResult = await analyzeContent(item.title, textContent);
+
+                    // 상세 로깅
+                    writeLog(`[${blogConfig.name}] AI 분석 결과 - ${item.title}`);
+                    writeLog(`  - 기술 콘텐츠 여부: ${analysisResult.isValid ? 'O' : 'X'}`);
+                    if (analysisResult.skillIds.length > 0) {
+                        writeLog(`  - 추출된 기술 스킬 (${analysisResult.skillIds.length}개): ${analysisResult.skillIds.join(', ')}`);
+                    } else {
+                        writeLog(`  - 추출된 기술 스킬: 없음`);
+                    }
+                    if (analysisResult.jobGroupIds.length > 0) {
+                        writeLog(`  - 추출된 직군 (${analysisResult.jobGroupIds.length}개): ${analysisResult.jobGroupIds.join(', ')}`);
+                    } else {
+                        writeLog(`  - 추출된 직군: 없음`);
+                    }
                 }
 
                 // 썸네일 추출
@@ -184,7 +214,7 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
                     const docRef = db.collection('Blogs').doc(docId);
                     const contentRef = docRef.collection('Content').doc('content');
 
-                    // 메인 문서 데이터
+                    // 메인 문서 데이터 (AI 분석 결과 포함)
                     batch.set(docRef, {
                         id: docId,
                         title: item.title,
@@ -195,6 +225,9 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
                         blogName: blogConfig.name,
                         description: contentResult.description || '내용 없음',
                         thumbnailUrl: thumbnailUrl,
+                        isValid: analysisResult.isValid,
+                        skillIds: analysisResult.skillIds,
+                        jobGroupIds: analysisResult.jobGroupIds,
                         createdAt: FieldValue.serverTimestamp(),
                         updatedAt: FieldValue.serverTimestamp()
                     });
@@ -416,148 +449,4 @@ export const testCrawling = onRequest(
     }
 );
 
-// 명령어 처리
-const targetBlogId = process.argv.find((arg) => arg.startsWith('--blog='))?.split('=')[1];
-
-if (process.argv.includes('--test')) {
-    writeLog('테스트 모드로 실행됨');
-    main().catch(error => {
-        writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
-    });
-} else if (process.argv.includes('--crawl')) {
-    main().catch(error => {
-        writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
-        process.exit(1);
-    });
-} else if (process.argv.includes('--delete')) {
-    if (initializeFirebase()) {
-        if (targetBlogId) {
-            deleteBlogData(targetBlogId)
-                .then(() => writeLog('삭제가 완료되었습니다.'))
-                .catch(error => {
-                    writeLog(`삭제 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
-                    process.exit(1);
-                });
-        } else {
-            writeLog('삭제할 블로그 ID를 지정해주세요. (--blog=블로그ID)');
-            process.exit(1);
-        }
-    } else {
-        writeLog('Firebase 초기화 실패로 삭제를 진행할 수 없습니다.');
-        process.exit(1);
-    }
-} else {
-    writeLog('명령어를 지정해주세요.');
-    writeLog(`
-사용 가능한 명령어:
---delete : Blogs 컬렉션의 모든 데이터 삭제
---test   : 테스트 모드로 실행 (Firebase 저장 건너뜀)
---crawl  : 전체 블로그 크롤링
-    `);
-    process.exit(1);
-}
-
-// Firebase 컬렉션 삭제 함수
-async function deleteCollection(collectionPath: string, batchSize: number = 100) {
-    const collectionRef = admin.firestore().collection(collectionPath);
-    const query = collectionRef.orderBy('__name__').limit(batchSize);
-
-    return new Promise((resolve, reject) => {
-        deleteQueryBatch(query, batchSize, resolve, reject);
-    });
-}
-
-async function deleteQueryBatch(query: FirebaseFirestore.Query, batchSize: number, resolve: Function, reject: Function) {
-    try {
-        const snapshot = await query.get();
-
-        // 삭제할 문서가 없으면 완료
-        if (snapshot.size === 0) {
-            resolve();
-            return;
-        }
-
-        // 배치 삭제 수행
-        const batch = admin.firestore().batch();
-        snapshot.docs.forEach((doc) => {
-            // Content 서브컬렉션도 삭제
-            const contentRef = doc.ref.collection('Content').doc('content');
-            batch.delete(contentRef);
-            batch.delete(doc.ref);
-        });
-
-        await batch.commit();
-
-        // 다음 배치 처리
-        process.nextTick(() => {
-            deleteQueryBatch(query, batchSize, resolve, reject);
-        });
-    } catch (error) {
-        reject(error);
-    }
-}
-
-// 특정 블로그의 데이터 삭제
-async function deleteBlogData(blogId: string): Promise<void> {
-    try {
-        const blogsRef = admin.firestore().collection('Blogs');
-        const query = blogsRef.where('blogId', '==', blogId);
-        const snapshot = await query.get();
-
-        if (snapshot.empty) {
-            writeLog(`블로그 ID "${blogId}"에 해당하는 데이터가 없습니다.`);
-            return;
-        }
-
-        let batch = admin.firestore().batch();
-        let count = 0;
-
-        for (const doc of snapshot.docs) {
-            // Content 서브컬렉션 삭제
-            const contentRef = doc.ref.collection('Content').doc('content');
-            batch.delete(contentRef);
-            // 메인 문서 삭제
-            batch.delete(doc.ref);
-            count += 2;
-
-            // Firestore 배치 제한(500)에 도달하면 커밋
-            if (count >= 498) {
-                await batch.commit();
-                batch = admin.firestore().batch();
-                count = 0;
-            }
-        }
-
-        // 남은 배치 처리
-        if (count > 0) {
-            await batch.commit();
-        }
-
-        writeLog(`블로그 ID "${blogId}"의 ${snapshot.size}개 문서가 삭제되었습니다.`);
-    } catch (error) {
-        writeLog(`데이터 삭제 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
-        throw error;
-    }
-}
-
-/* 
-// 1. 개발 환경에서 모든 블로그 크롤링
-npm run build && node dist/cli.js --crawl --dev
-
-// 2. 개발 환경에서 특정 블로그만 크롤링
-npm run build && node dist/cli.js --crawl --dev --blog=블로그ID
-// 예: npm run build && node dist/cli.js --crawl --dev --blog=tving
-
-// 3. 프로덕션 환경에서 모든 블로그 크롤링
-npm run build && node dist/cli.js --crawl
-
-// 4. 프로덕션 환경에서 특정 블로그만 크롤링
-npm run build && node dist/cli.js --crawl --blog=블로그ID
-
-// 5. 테스트 모드 (Firebase에 저장하지 않고 크롤링만 테스트)
-npm run build && node dist/cli.js --test --blog=블로그ID
-
-// 6. 개발 환경에서 테스트 모드
-npm run build && node dist/cli.js --test --dev --blog=블로그ID
-*/
+// 명령어 처리 로직 제거 (cli.ts로 이동)

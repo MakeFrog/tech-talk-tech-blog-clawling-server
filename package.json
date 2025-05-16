@@ -16,6 +16,7 @@
         "crawl:dev": "npm run build && node dist/main.js --crawl --dev"
     },
     "dependencies": {
+        "@google/generative-ai": "^0.24.1",
         "@types/probe-image-size": "^7.2.5",
         "axios": "^1.9.0",
         "cheerio": "^1.0.0",
