@@ -203,7 +203,7 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
                 // 작성자 정보
                 const author = item.creator || (blogConfig.authorSelector ? $(blogConfig.authorSelector).first().text().trim().split(',')[0] : blogConfig.name);
 
-                // 로그 출력
+                // 로그 출력ㄱ
                 writeLog(`[${blogConfig.name}] ${item.title} - 본문 길이: ${textContent.length}자 / ` +
                     `description 추출: ${contentResult.description ? 'O' : 'X'} / ` +
                     `썸네일 추출: ${thumbnailUrl ? 'O' : 'X'} / ` +
@@ -218,21 +218,22 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
                     batch.set(docRef, {
                         id: docId,
                         title: item.title,
-                        linkUrl: item.link,
-                        publishDate: Timestamp.fromDate(new Date(item.pubDate || item.isoDate || new Date())),
+                        link_url: item.link,
+                        publish_date: Timestamp.fromDate(new Date(item.pubDate || item.isoDate || new Date())),
                         author: author,
-                        blogId: blogConfig.id,
-                        blogName: blogConfig.name,
+                        blog_id: blogConfig.id,
+                        blog_name: blogConfig.name,
+                        is_company: true,
                         description: contentResult.description || '',
-                        thumbnailUrl: thumbnailUrl,
-                        isValid: analysisResult.isValid,
-                        skillIds: analysisResult.skillIds,
-                        jobGroupIds: analysisResult.jobGroupIds,
+                        thumbnail_url: thumbnailUrl,
+                        is_valid: analysisResult.isValid,
+                        related_skill_ids: analysisResult.skillIds,
+                        related_job_group_ids: analysisResult.jobGroupIds,
                         random: Array.from({ length: 5 }, (_, i) => ({
                             [i + 1]: Math.random()
                         })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
-                        createdAt: FieldValue.serverTimestamp(),
-                        updatedAt: FieldValue.serverTimestamp()
+                        created_at: FieldValue.serverTimestamp(),
+                        updated_at: FieldValue.serverTimestamp()
                     });
 
                     // 컨텐츠 서브컬렉션 데이터
@@ -421,6 +422,115 @@ export const eveningCrawlingDev = onSchedule(
         }
     }
 );
+
+// 임시 함수: company_name을 blog_name으로 변경하고 is_company 추가
+export async function updateCompanyNameField(): Promise<void> {
+    try {
+        if (!initializeFirebase()) {
+            throw new Error('Firebase 초기화 실패');
+        }
+
+        const blogsRef = db.collection('Blogs');
+        const snapshot = await blogsRef.get();
+        let batch = db.batch();
+        let count = 0;
+        let totalUpdated = 0;
+
+        for (const doc of snapshot.docs) {
+            const data = doc.data();
+            const updates: { [key: string]: any } = {
+                blog_name: data.company_name,
+                is_company: true,
+                updated_at: FieldValue.serverTimestamp()
+            };
+
+            // 이전 필드 삭제
+            const deletes: { [key: string]: FieldValue } = {
+                company_name: FieldValue.delete()
+            };
+
+            batch.update(doc.ref, { ...updates, ...deletes });
+
+            count++;
+            totalUpdated++;
+
+            // Firestore 배치 제한(500)에 도달하면 커밋
+            if (count >= 498) {
+                await batch.commit();
+                writeLog(`${count}개 문서 필드명 변경 완료`);
+                batch = db.batch();
+                count = 0;
+            }
+        }
+
+        // 남은 배치 처리
+        if (count > 0) {
+            await batch.commit();
+            writeLog(`남은 ${count}개 문서 필드명 변경 완료`);
+        }
+
+        writeLog(`총 ${totalUpdated}개 문서의 필드명 변경 완료`);
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        writeLog(`필드명 변경 중 오류 발생: ${errorMessage}`);
+        throw error;
+    }
+}
+
+// 임시 함수: related_skills와 related_job_groups 필드명 변경
+export async function updateRelatedFieldNames(): Promise<void> {
+    try {
+        if (!initializeFirebase()) {
+            throw new Error('Firebase 초기화 실패');
+        }
+
+        const blogsRef = db.collection('Blogs');
+        const snapshot = await blogsRef.get();
+        let batch = db.batch();
+        let count = 0;
+        let totalUpdated = 0;
+
+        for (const doc of snapshot.docs) {
+            const data = doc.data();
+            const updates: { [key: string]: any } = {
+                related_skill_ids: data.related_skills,
+                related_job_group_ids: data.related_job_groups,
+                updated_at: FieldValue.serverTimestamp()
+            };
+
+            // 이전 필드 삭제
+            const deletes: { [key: string]: FieldValue } = {
+                related_skills: FieldValue.delete(),
+                related_job_groups: FieldValue.delete()
+            };
+
+            batch.update(doc.ref, { ...updates, ...deletes });
+
+            count++;
+            totalUpdated++;
+
+            // Firestore 배치 제한(500)에 도달하면 커밋
+            if (count >= 498) {
+                await batch.commit();
+                writeLog(`${count}개 문서 필드명 변경 완료`);
+                batch = db.batch();
+                count = 0;
+            }
+        }
+
+        // 남은 배치 처리
+        if (count > 0) {
+            await batch.commit();
+            writeLog(`남은 ${count}개 문서 필드명 변경 완료`);
+        }
+
+        writeLog(`총 ${totalUpdated}개 문서의 필드명 변경 완료`);
+    } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        writeLog(`필드명 변경 중 오류 발생: ${errorMessage}`);
+        throw error;
+    }
+}
 
 // HTTP 엔드포인트 - 크롤링 테스트용
 export const testCrawling = onRequest(
