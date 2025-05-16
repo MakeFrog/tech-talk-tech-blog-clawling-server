@@ -223,11 +223,14 @@ export async function crawlBlog(blogConfig: BlogConfig, isTestMode = false): Pro
                         author: author,
                         blogId: blogConfig.id,
                         blogName: blogConfig.name,
-                        description: contentResult.description || '내용 없음',
+                        description: contentResult.description || '',
                         thumbnailUrl: thumbnailUrl,
                         isValid: analysisResult.isValid,
                         skillIds: analysisResult.skillIds,
                         jobGroupIds: analysisResult.jobGroupIds,
+                        random: Array.from({ length: 5 }, (_, i) => ({
+                            [i + 1]: Math.random()
+                        })).reduce((acc, curr) => ({ ...acc, ...curr }), {}),
                         createdAt: FieldValue.serverTimestamp(),
                         updatedAt: FieldValue.serverTimestamp()
                     });
@@ -448,5 +451,3 @@ export const testCrawling = onRequest(
         }
     }
 );
-
-// 명령어 처리 로직 제거 (cli.ts로 이동)
