@@ -416,8 +416,50 @@ export const testCrawling = onRequest(
     }
 );
 
+// 명령어 처리
+const targetBlogId = process.argv.find((arg) => arg.startsWith('--blog='))?.split('=')[1];
+
+if (process.argv.includes('--test')) {
+    writeLog('테스트 모드로 실행됨');
+    main().catch(error => {
+        writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+    });
+} else if (process.argv.includes('--crawl')) {
+    main().catch(error => {
+        writeLog(`프로그램 실행 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+        process.exit(1);
+    });
+} else if (process.argv.includes('--delete')) {
+    if (initializeFirebase()) {
+        if (targetBlogId) {
+            deleteBlogData(targetBlogId)
+                .then(() => writeLog('삭제가 완료되었습니다.'))
+                .catch(error => {
+                    writeLog(`삭제 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
+                    process.exit(1);
+                });
+        } else {
+            writeLog('삭제할 블로그 ID를 지정해주세요. (--blog=블로그ID)');
+            process.exit(1);
+        }
+    } else {
+        writeLog('Firebase 초기화 실패로 삭제를 진행할 수 없습니다.');
+        process.exit(1);
+    }
+} else {
+    writeLog('명령어를 지정해주세요.');
+    writeLog(`
+사용 가능한 명령어:
+--delete : Blogs 컬렉션의 모든 데이터 삭제
+--test   : 테스트 모드로 실행 (Firebase 저장 건너뜀)
+--crawl  : 전체 블로그 크롤링
+    `);
+    process.exit(1);
+}
+
 // Firebase 컬렉션 삭제 함수
-export async function deleteCollection(collectionPath: string, batchSize: number = 100) {
+async function deleteCollection(collectionPath: string, batchSize: number = 100) {
     const collectionRef = admin.firestore().collection(collectionPath);
     const query = collectionRef.orderBy('__name__').limit(batchSize);
 
@@ -457,7 +499,7 @@ async function deleteQueryBatch(query: FirebaseFirestore.Query, batchSize: numbe
 }
 
 // 특정 블로그의 데이터 삭제
-export async function deleteBlogData(blogId: string): Promise<void> {
+async function deleteBlogData(blogId: string): Promise<void> {
     try {
         const blogsRef = admin.firestore().collection('Blogs');
         const query = blogsRef.where('blogId', '==', blogId);
@@ -497,4 +539,25 @@ export async function deleteBlogData(blogId: string): Promise<void> {
         writeLog(`데이터 삭제 중 오류 발생: ${error instanceof Error ? error.message : String(error)}`);
         throw error;
     }
-} 
+}
+
+/* 
+// 1. 개발 환경에서 모든 블로그 크롤링
+npm run build && node dist/cli.js --crawl --dev
+
+// 2. 개발 환경에서 특정 블로그만 크롤링
+npm run build && node dist/cli.js --crawl --dev --blog=블로그ID
+// 예: npm run build && node dist/cli.js --crawl --dev --blog=tving
+
+// 3. 프로덕션 환경에서 모든 블로그 크롤링
+npm run build && node dist/cli.js --crawl
+
+// 4. 프로덕션 환경에서 특정 블로그만 크롤링
+npm run build && node dist/cli.js --crawl --blog=블로그ID
+
+// 5. 테스트 모드 (Firebase에 저장하지 않고 크롤링만 테스트)
+npm run build && node dist/cli.js --test --blog=블로그ID
+
+// 6. 개발 환경에서 테스트 모드
+npm run build && node dist/cli.js --test --dev --blog=블로그ID
+*/
