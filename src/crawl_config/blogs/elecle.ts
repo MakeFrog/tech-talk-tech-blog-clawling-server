@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const elecleConfig: BlogConfig = {
     id: 'elecle',
-    name: '일레클 테크블로그',
+    name: '일레클',
     feedUrl: 'https://medium.com/feed/elecle-bike',
     authorSelector: '.author',
     platform: 'medium',

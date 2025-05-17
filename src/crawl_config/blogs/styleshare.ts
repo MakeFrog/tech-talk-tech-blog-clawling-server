@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const styleshareConfig: BlogConfig = {
     id: 'styleshare',
-    name: '스타일쉐어 테크블로그',
+    name: '스타일쉐어',
     feedUrl: 'https://medium.com/feed/styleshare',
     authorSelector: '.author',
     platform: 'medium',

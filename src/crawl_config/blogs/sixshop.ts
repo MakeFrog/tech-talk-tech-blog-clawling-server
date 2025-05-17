@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const sixshopConfig: BlogConfig = {
     id: 'sixshop',
-    name: '식스샵 테크블로그',
+    name: '식스샵',
     feedUrl: 'https://medium.com/feed/sixshop',
     authorSelector: '.author',
     platform: 'medium',

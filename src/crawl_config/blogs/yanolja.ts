@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const yanoljaConfig: BlogConfig = {
     id: 'yanolja',
-    name: '야놀자 테크블로그',
+    name: '야놀자',
     feedUrl: 'https://medium.com/feed/yanolja',
     authorSelector: '.author',
     platform: 'medium',

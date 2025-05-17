@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const wantedConfig: BlogConfig = {
     id: 'wanted',
-    name: '원티드 테크블로그',
+    name: '원티드',
     feedUrl: 'https://medium.com/feed/wantedjobs',
     authorSelector: '.author',
     platform: 'medium',

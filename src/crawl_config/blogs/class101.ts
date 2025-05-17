@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const class101Config: BlogConfig = {
     id: 'class101',
-    name: '클래스101 테크블로그',
+    name: '클래스101',
     feedUrl: 'https://medium.com/feed/class101',
     authorSelector: '.author',
     platform: 'medium',

@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const pinkfongConfig: BlogConfig = {
     id: 'pinkfong',
-    name: '더핑크퐁컴퍼니 테크블로그',
+    name: '더핑크퐁컴퍼니',
     feedUrl: 'https://medium.com/feed/pinkfong',
     authorSelector: '.author',
     platform: 'medium',

@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const daangnConfig: BlogConfig = {
     id: 'daangn',
-    name: '당근마켓 테크블로그',
+    name: '당근마켓',
     feedUrl: 'https://medium.com/feed/daangn',
     authorSelector: '.author',
     platform: 'medium',

@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const heydealerConfig: BlogConfig = {
     id: 'heydealer',
-    name: '헤이딜러 테크블로그',
+    name: '헤이딜러',
     feedUrl: 'https://medium.com/feed/prnd',
     authorSelector: '.author',
     platform: 'medium',

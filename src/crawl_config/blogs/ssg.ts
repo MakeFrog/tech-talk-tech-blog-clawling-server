@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const ssgConfig: BlogConfig = {
     id: 'ssg',
-    name: 'SSG 테크블로그',
+    name: 'SSG',
     feedUrl: 'https://medium.com/feed/ssgtech',
     authorSelector: '.author',
     platform: 'medium',

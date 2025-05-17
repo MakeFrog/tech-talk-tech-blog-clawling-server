@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const lemonbaseConfig: BlogConfig = {
     id: 'lemonbase',
-    name: '레몬베이스 테크블로그',
+    name: '레몬베이스',
     feedUrl: 'https://medium.com/feed/lemonbase',
     authorSelector: '.author',
     platform: 'medium',

@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const spoonConfig: BlogConfig = {
     id: 'spoon',
-    name: '스푼라디오 테크블로그',
+    name: '스푼라디오',
     feedUrl: 'https://medium.com/feed/spoontech',
     authorSelector: '.author',
     platform: 'medium',

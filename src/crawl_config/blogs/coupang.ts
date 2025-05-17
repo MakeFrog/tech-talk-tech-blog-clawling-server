@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const coupangConfig: BlogConfig = {
     id: 'coupang',
-    name: '쿠팡 테크블로그',
+    name: '쿠팡',
     feedUrl: 'https://medium.com/feed/coupang-engineering',
     authorSelector: '.author',
     platform: 'medium',

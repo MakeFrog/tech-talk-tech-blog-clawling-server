@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const mildangConfig: BlogConfig = {
     id: 'mildang',
-    name: '밀당 테크블로그',
+    name: '밀당',
     feedUrl: 'https://medium.com/feed/mildang',
     authorSelector: '.author',
     platform: 'medium',

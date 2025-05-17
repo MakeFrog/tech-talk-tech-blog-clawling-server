@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const naverPlaceConfig: BlogConfig = {
     id: 'naver-place',
-    name: '네이버 플레이스 테크블로그',
+    name: '네이버 플레이스',
     feedUrl: 'https://medium.com/feed/naver-place-dev',
     authorSelector: '.author',
     platform: 'medium',

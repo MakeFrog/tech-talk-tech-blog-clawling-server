@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const megazoneConfig: BlogConfig = {
     id: 'megazone',
-    name: '메가존클라우드 테크블로그',
+    name: '메가존클라우드',
     feedUrl: 'https://medium.com/feed/ctc-mzc',
     authorSelector: '.author',
     platform: 'medium',

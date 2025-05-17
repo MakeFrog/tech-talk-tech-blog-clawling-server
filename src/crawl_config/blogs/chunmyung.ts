@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const chunmyungConfig: BlogConfig = {
     id: 'chunmyung',
-    name: '천명앤컴퍼니 테크블로그',
+    name: '천명앤컴퍼니',
     feedUrl: 'https://medium.com/feed/chunmyung',
     authorSelector: '.author',
     platform: 'medium',

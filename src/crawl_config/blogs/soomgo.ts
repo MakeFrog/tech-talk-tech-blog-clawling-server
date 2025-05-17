@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const soomgoConfig: BlogConfig = {
     id: 'soomgo',
-    name: '숨고 테크블로그',
+    name: '숨고',
     feedUrl: 'https://medium.com/feed/soomgo-tech',
     authorSelector: '.author',
     platform: 'medium',

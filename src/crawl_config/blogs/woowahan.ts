@@ -6,7 +6,7 @@ import { isValidImageUrl, getImageDimensions, isValidImageFormat } from '../../u
 
 const woowahanConfig: BlogConfig = {
     id: 'woowahan',
-    name: '우아한형제들 기술 블로그',
+    name: '우아한형제들',
     feedUrl: 'https://techblog.woowahan.com/feed/',
     platform: 'woowahan',
 

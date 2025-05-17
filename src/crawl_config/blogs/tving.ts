@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const tvingConfig: BlogConfig = {
     id: 'tving',
-    name: '티빙 테크블로그',
+    name: '티빙',
     feedUrl: 'https://medium.com/feed/tving-team',
     authorSelector: '.author',
     platform: 'medium',

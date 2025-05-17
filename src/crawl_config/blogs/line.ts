@@ -5,7 +5,7 @@ import * as cheerio from 'cheerio';
 
 const lineConfig: BlogConfig = {
     id: 'line',
-    name: 'LINE 기술 블로그',
+    name: 'LINE',
     feedUrl: 'https://techblog.lycorp.co.jp/ko/feed/index.xml',
     platform: 'line',
     authorSelector: '',

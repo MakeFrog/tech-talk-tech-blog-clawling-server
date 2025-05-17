@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const idusConfig: BlogConfig = {
     id: 'idus',
-    name: '아이디어스 테크블로그',
+    name: '아이디어스',
     feedUrl: 'https://medium.com/feed/idus-tech',
     authorSelector: '.author',
     platform: 'medium',

@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const twentyNineCmConfig: BlogConfig = {
     id: '29cm',
-    name: '29CM 테크블로그',
+    name: '29CM',
     feedUrl: 'https://medium.com/feed/29cm',
     authorSelector: '.author',
     platform: 'medium',

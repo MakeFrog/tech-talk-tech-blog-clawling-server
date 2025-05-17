@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const watchaConfig: BlogConfig = {
     id: 'watcha',
-    name: 'WATCHA 테크블로그',
+    name: 'WATCHA',
     feedUrl: 'https://medium.com/feed/watcha',
     authorSelector: '.author',
     platform: 'medium',

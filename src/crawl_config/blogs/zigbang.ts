@@ -3,7 +3,7 @@ import { mediumPlatform } from '../platforms/medium';
 
 const zigbangConfig: BlogConfig = {
     id: 'zigbang',
-    name: '직방 테크블로그',
+    name: '직방',
     feedUrl: 'https://medium.com/feed/zigbang',
     authorSelector: '.author',
     platform: 'medium',
